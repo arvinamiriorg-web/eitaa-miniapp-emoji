@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ابزار ساخت زنجیره ایموجی در ایتا</title>
+  <!-- اتصال به کیت توسعه ایتا (باید پیش از هر اسکریپت دیگری باشد) -->
+  <script src="https://developer.eitaa.com/eitaa-web-app.js"></script>
   <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
-  <!-- Eitaa WebApp SDK -->
-  <script src="https://developer.eitaa.com/sdk/eitaa-web-app.js"></script>
   <style>
     *,
     *::before,
@@ -26,13 +26,16 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: linear-gradient(135deg, #FF7634 0%, #FFB088 100%);
+      /* استفاده از رنگ‌های تم ایتا در صورت وجود، در غیر این صورت گرادیان پیش‌فرض */
+      background: var(--tg-theme-secondary-bg-color, linear-gradient(135deg, #FF7634 0%, #FFB088 100%));
       padding: 20px;
       overflow-x: hidden;
+      /* احترام به ناحیه امن صفحه */
+      padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
     }
 
     .card {
-      background: #ffffff;
+      background: var(--tg-theme-bg-color, #ffffff);
       border-radius: 24px;
       box-shadow: 0 20px 60px rgba(255, 118, 52, 0.25);
       padding: 40px 30px;
@@ -53,7 +56,7 @@
     }
 
     h1 {
-      color: #333;
+      color: var(--tg-theme-text-color, #333);
       font-size: 1.6em;
       margin: 0 0 10px;
       font-weight: 700;
@@ -62,25 +65,10 @@
     }
 
     .subtitle {
-      color: #888;
+      color: var(--tg-theme-hint-color, #888);
       font-size: 0.95em;
-      margin-bottom: 20px;
+      margin-bottom: 30px;
       line-height: 1.6;
-    }
-
-    .user-info {
-      background: #f0f9ff;
-      border: 1px solid #bae6fd;
-      border-radius: 12px;
-      padding: 12px;
-      margin-bottom: 20px;
-      font-size: 0.9em;
-      color: #0369a1;
-      display: none;
-    }
-
-    .user-info.show {
-      display: block;
     }
 
     .input-group {
@@ -94,19 +82,19 @@
       padding: 14px 16px;
       font-size: 1.05em;
       border-radius: 14px;
-      border: 2px solid #e5e7eb;
+      border: 2px solid var(--tg-theme-section-separator-color, #e5e7eb);
       outline: none;
       transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
-      background: #fafafa;
+      background: var(--tg-theme-section-bg-color, #fafafa);
       font-family: inherit;
-      color: #333;
+      color: var(--tg-theme-text-color, #333);
       min-width: 0;
       width: 100%;
     }
 
     input:focus {
-      border-color: #FF7634;
-      background: #fff;
+      border-color: var(--tg-theme-button-color, #FF7634);
+      background: var(--tg-theme-bg-color, #fff);
       box-shadow: 0 0 0 4px rgba(255, 118, 52, 0.15);
     }
 
@@ -127,8 +115,8 @@
       font-weight: 600;
       border-radius: 14px;
       border: none;
-      background: linear-gradient(135deg, #FF7634 0%, #FF9A5C 100%);
-      color: white;
+      background: var(--tg-theme-button-color, linear-gradient(135deg, #FF7634 0%, #FF9A5C 100%));
+      color: var(--tg-theme-button-text-color, white);
       cursor: pointer;
       transition: box-shadow 0.25s ease, background 0.25s ease;
       font-family: inherit;
@@ -157,51 +145,29 @@
       font-size: 1.1em;
       direction: ltr;
       border-radius: 14px;
-      border: 2px solid #e5e7eb;
+      border: 2px solid var(--tg-theme-section-separator-color, #e5e7eb);
       padding: 14px;
-      background: #fafafa;
+      background: var(--tg-theme-section-bg-color, #fafafa);
       resize: vertical;
       outline: none;
       transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
       font-family: inherit;
       text-align: center;
-      color: #333;
+      color: var(--tg-theme-text-color, #333);
       line-height: 1.6;
       overflow-wrap: anywhere;
       word-break: break-word;
     }
 
     textarea:focus {
-      border-color: #FF7634;
-      background: #fff;
+      border-color: var(--tg-theme-button-color, #FF7634);
+      background: var(--tg-theme-bg-color, #fff);
       box-shadow: 0 0 0 4px rgba(255, 118, 52, 0.15);
-    }
-
-    .button-group {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .button-group button {
-      flex: 1 1 140px;
-      margin-bottom: 10px;
-      font-size: 0.95em;
-      padding: 12px;
-    }
-
-    .btn-secondary {
-      background: linear-gradient(135deg, #6b7280 0%, #9ca3af 100%) !important;
-      box-shadow: 0 6px 20px rgba(107, 114, 128, 0.3) !important;
-    }
-
-    .btn-secondary:hover {
-      box-shadow: 0 10px 25px rgba(107, 114, 128, 0.4) !important;
     }
 
     .hint {
       font-size: 0.85em;
-      color: #999;
+      color: var(--tg-theme-hint-color, #999);
       margin-top: 10px;
       line-height: 1.6;
     }
@@ -217,9 +183,6 @@
     <h1>ابزار ساخت زنجیره ایموجی در ایتا</h1>
     <p class="subtitle">ایموجی یا متن مورد نظرت رو وارد کن و تعداد تکرارش رو مشخص کن</p>
 
-    <!-- نمایش اطلاعات کاربر ایتا -->
-    <div class="user-info" id="userInfo"></div>
-
     <div class="input-group">
       <input type="text" id="emoji" placeholder="مثلاً: 😂 یا سلام">
       <input type="number" id="count" placeholder="تعداد" min="1">
@@ -229,95 +192,19 @@
 
     <textarea id="output" readonly placeholder="نتیجه اینجا نمایش داده می‌شود..."></textarea>
 
-    <div class="button-group">
-      <button onclick="copyResult()" class="btn-secondary">📋 کپی نتیجه</button>
-      <button onclick="shareToEitaa()" class="btn-secondary">📤 اشتراک در ایتا</button>
-    </div>
-
     <p class="hint">کافیه نتیجه رو کپی کنی و توی ایتا بفرستی</p>
   </div>
 
   <script>
-    // راه‌اندازی Eitaa WebApp
-    let eitaaWebApp = null;
-    let startParam = null;
+    // دسترسی به کیت توسعه ایتا
+    const EitaaApp = window.Eitaa?.WebApp;
 
-    function initEitaa() {
-      // بررسی وجود SDK ایتا
-      if (window.Eitaa && window.Eitaa.WebApp) {
-        eitaaWebApp = window.Eitaa.WebApp;
-
-        // دریافت start_param از طریق initDataUnsafe
-        if (eitaaWebApp.initDataUnsafe) {
-          startParam = eitaaWebApp.initDataUnsafe.start_param;
-        }
-
-        // همچنین ممکن است از طریق tgWebAppStartParam در URL دریافت شود
-        if (!startParam) {
-          const urlParams = new URLSearchParams(window.location.search);
-          startParam = urlParams.get('tgWebAppStartParam');
-        }
-
-        // پردازش start_param در صورت وجود
-        if (startParam) {
-          try {
-            // فرض بر این است که start_param حاوی متن یا ایموجی باشد
-            const decodedParam = decodeURIComponent(startParam);
-            document.getElementById('emoji').value = decodedParam;
-            console.log('داده دریافتی از start_param:', decodedParam);
-          } catch (e) {
-            console.log('خطا در پردازش start_param:', e);
-          }
-        }
-
-        // نمایش اطلاعات کاربر
-        showUserInfo();
-
-        // اعمال تنظیمات تم
-        applyTheme();
-
-        // اطلاع‌رسانی به ایتا که برنامه آماده است
-        if (eitaaWebApp.ready) {
-          eitaaWebApp.ready();
-        }
-
-        // گسترش به حالت تمام صفحه
-        if (eitaaWebApp.expand) {
-          eitaaWebApp.expand();
-        }
-      }
-    }
-
-    function showUserInfo() {
-      if (!eitaaWebApp || !eitaaWebApp.initDataUnsafe) return;
-
-      const user = eitaaWebApp.initDataUnsafe.user;
-      const userInfoDiv = document.getElementById('userInfo');
-
-      if (user) {
-        const firstName = user.first_name || '';
-        const lastName = user.last_name || '';
-        const username = user.username ? `@${user.username}` : '';
-        
-        userInfoDiv.innerHTML = `
-          👋 سلام ${firstName} ${lastName}!
-          ${username ? `<br>نام کاربری: ${username}` : ''}
-        `;
-        userInfoDiv.classList.add('show');
-      }
-    }
-
-    function applyTheme() {
-      if (!eitaaWebApp) return;
-      
-      // بررسی تم تاریک
-      if (eitaaWebApp.colorScheme === 'dark') {
-        document.body.style.background = 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)';
-        const card = document.querySelector('.card');
-        if (card) {
-          card.style.background = '#1f2937';
-          card.style.color = '#f3f4f6';
-        }
+    // نمایش پیام سازگار با محیط (در ایتا از showAlert استفاده می‌کنیم)
+    function notify(message) {
+      if (EitaaApp && typeof EitaaApp.showAlert === 'function') {
+        EitaaApp.showAlert(message);
+      } else {
+        alert(message);
       }
     }
 
@@ -328,12 +215,18 @@
       let result = "";
 
       if (!emoji) {
-        showAlert("لطفاً یک متن یا ایموجی وارد کن!");
+        notify("لطفاً یک متن یا ایموجی وارد کن!");
         return;
       }
 
       if (isNaN(count) || count < 1) {
-        showAlert("لطفاً یک عدد معتبر برای تعداد تکرار وارد کن!");
+        notify("لطفاً یک عدد معتبر برای تعداد تکرار وارد کن!");
+        return;
+      }
+
+      // محدودیت منطقی برای جلوگیری از هنگ کردن
+      if (count > 5000) {
+        notify("حداکثر تعداد تکرار ۵۰۰۰ بار است.");
         return;
       }
 
@@ -343,81 +236,32 @@
 
       result = result.slice(0, -1);
       document.getElementById("output").value = result;
-    }
 
-    function copyResult() {
-      const output = document.getElementById("output");
-      if (!output.value) {
-        showAlert("اول زنجیره رو بساز!");
-        return;
-      }
-
-      // استفاده از Clipboard API
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(output.value).then(() => {
-          showAlert("✅ نتیجه کپی شد!");
-        }).catch(() => {
-          fallbackCopy(output);
-        });
-      } else {
-        fallbackCopy(output);
+      // بازخورد لمسی در صورت پشتیبانی
+      if (EitaaApp?.HapticFeedback?.impactOccurred) {
+        EitaaApp.HapticFeedback.impactOccurred('light');
       }
     }
 
-    function fallbackCopy(element) {
-      element.select();
-      element.setSelectionRange(0, 99999);
+    // آماده‌سازی برنامک برای نمایش در ایتا
+    if (EitaaApp) {
+      // به ایتا اطلاع می‌دهیم که برنامک آماده نمایش است
+      EitaaApp.ready();
+
+      // تنظیم رنگ‌های سربرگ و پس‌زمینه برنامک (اختیاری)
       try {
-        document.execCommand('copy');
-        showAlert("✅ نتیجه کپی شد!");
+        EitaaApp.setHeaderColor('#FF7634');
+        EitaaApp.setBackgroundColor('#FFB088');
       } catch (e) {
-        showAlert("❌ خطا در کپی. لطفاً دستی کپی کنید.");
+        // نادیده گرفتن خطا در نسخه‌های قدیمی‌تر
       }
+
+      // بررسی دسترسی به SDK
+      console.log("Eitaa SDK در دسترس است. نسخه:", EitaaApp.version);
+      console.log("پلتفرم:", EitaaApp.platform);
+    } else {
+      console.log("Eitaa SDK فعال نیست - اجرا در مرورگر عادی");
     }
-
-    function shareToEitaa() {
-      const output = document.getElementById("output");
-      if (!output.value) {
-        showAlert("اول زنجیره رو بساز!");
-        return;
-      }
-
-      // اگر در محیط ایتا هستیم، از قابلیت اشتراک‌گذاری استفاده کنیم
-      if (eitaaWebApp && eitaaWebApp.shareMessage) {
-        eitaaWebApp.shareMessage(output.value);
-      } else if (navigator.share) {
-        // استفاده از Web Share API
-        navigator.share({
-          text: output.value,
-          title: 'زنجیره ایموجی'
-        }).catch(() => {
-          // اگر کاربر لغو کرد یا خطا داد
-        });
-      } else {
-        // در غیر این صورت، کپی می‌کنیم
-        copyResult();
-        showAlert("متن کپی شد! می‌تونی توی ایتا پیست کنی.");
-      }
-    }
-
-    function showAlert(message) {
-      // استفاده از alert ایتا در صورت وجود
-      if (eitaaWebApp && eitaaWebApp.showAlert) {
-        eitaaWebApp.showAlert(message);
-      } else {
-        alert(message);
-      }
-    }
-
-    // راه‌اندازی اولیه
-    document.addEventListener('DOMContentLoaded', initEitaa);
-
-    // همچنین در صورت بارگذاری دیرهنگام SDK
-    window.addEventListener('load', () => {
-      if (!eitaaWebApp) {
-        initEitaa();
-      }
-    });
   </script>
 </body>
 </html>
