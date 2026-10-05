@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ابزار ساخت زنجیره ایموجی در ایتا</title>
   <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
+  <!-- Eitaa WebApp SDK -->
+  <script src="https://developer.eitaa.com/sdk/eitaa-web-app.js"></script>
   <style>
     *,
     *::before,
@@ -62,8 +64,23 @@
     .subtitle {
       color: #888;
       font-size: 0.95em;
-      margin-bottom: 30px;
+      margin-bottom: 20px;
       line-height: 1.6;
+    }
+
+    .user-info {
+      background: #f0f9ff;
+      border: 1px solid #bae6fd;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 20px;
+      font-size: 0.9em;
+      color: #0369a1;
+      display: none;
+    }
+
+    .user-info.show {
+      display: block;
     }
 
     .input-group {
@@ -160,6 +177,28 @@
       box-shadow: 0 0 0 4px rgba(255, 118, 52, 0.15);
     }
 
+    .button-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .button-group button {
+      flex: 1 1 140px;
+      margin-bottom: 10px;
+      font-size: 0.95em;
+      padding: 12px;
+    }
+
+    .btn-secondary {
+      background: linear-gradient(135deg, #6b7280 0%, #9ca3af 100%) !important;
+      box-shadow: 0 6px 20px rgba(107, 114, 128, 0.3) !important;
+    }
+
+    .btn-secondary:hover {
+      box-shadow: 0 10px 25px rgba(107, 114, 128, 0.4) !important;
+    }
+
     .hint {
       font-size: 0.85em;
       color: #999;
@@ -178,6 +217,9 @@
     <h1>ابزار ساخت زنجیره ایموجی در ایتا</h1>
     <p class="subtitle">ایموجی یا متن مورد نظرت رو وارد کن و تعداد تکرارش رو مشخص کن</p>
 
+    <!-- نمایش اطلاعات کاربر ایتا -->
+    <div class="user-info" id="userInfo"></div>
+
     <div class="input-group">
       <input type="text" id="emoji" placeholder="مثلاً: 😂 یا سلام">
       <input type="number" id="count" placeholder="تعداد" min="1">
@@ -187,10 +229,98 @@
 
     <textarea id="output" readonly placeholder="نتیجه اینجا نمایش داده می‌شود..."></textarea>
 
+    <div class="button-group">
+      <button onclick="copyResult()" class="btn-secondary">📋 کپی نتیجه</button>
+      <button onclick="shareToEitaa()" class="btn-secondary">📤 اشتراک در ایتا</button>
+    </div>
+
     <p class="hint">کافیه نتیجه رو کپی کنی و توی ایتا بفرستی</p>
   </div>
 
   <script>
+    // راه‌اندازی Eitaa WebApp
+    let eitaaWebApp = null;
+    let startParam = null;
+
+    function initEitaa() {
+      // بررسی وجود SDK ایتا
+      if (window.Eitaa && window.Eitaa.WebApp) {
+        eitaaWebApp = window.Eitaa.WebApp;
+
+        // دریافت start_param از طریق initDataUnsafe
+        if (eitaaWebApp.initDataUnsafe) {
+          startParam = eitaaWebApp.initDataUnsafe.start_param;
+        }
+
+        // همچنین ممکن است از طریق tgWebAppStartParam در URL دریافت شود
+        if (!startParam) {
+          const urlParams = new URLSearchParams(window.location.search);
+          startParam = urlParams.get('tgWebAppStartParam');
+        }
+
+        // پردازش start_param در صورت وجود
+        if (startParam) {
+          try {
+            // فرض بر این است که start_param حاوی متن یا ایموجی باشد
+            const decodedParam = decodeURIComponent(startParam);
+            document.getElementById('emoji').value = decodedParam;
+            console.log('داده دریافتی از start_param:', decodedParam);
+          } catch (e) {
+            console.log('خطا در پردازش start_param:', e);
+          }
+        }
+
+        // نمایش اطلاعات کاربر
+        showUserInfo();
+
+        // اعمال تنظیمات تم
+        applyTheme();
+
+        // اطلاع‌رسانی به ایتا که برنامه آماده است
+        if (eitaaWebApp.ready) {
+          eitaaWebApp.ready();
+        }
+
+        // گسترش به حالت تمام صفحه
+        if (eitaaWebApp.expand) {
+          eitaaWebApp.expand();
+        }
+      }
+    }
+
+    function showUserInfo() {
+      if (!eitaaWebApp || !eitaaWebApp.initDataUnsafe) return;
+
+      const user = eitaaWebApp.initDataUnsafe.user;
+      const userInfoDiv = document.getElementById('userInfo');
+
+      if (user) {
+        const firstName = user.first_name || '';
+        const lastName = user.last_name || '';
+        const username = user.username ? `@${user.username}` : '';
+        
+        userInfoDiv.innerHTML = `
+          👋 سلام ${firstName} ${lastName}!
+          ${username ? `<br>نام کاربری: ${username}` : ''}
+        `;
+        userInfoDiv.classList.add('show');
+      }
+    }
+
+    function applyTheme() {
+      if (!eitaaWebApp) return;
+      
+      // بررسی تم تاریک
+      if (eitaaWebApp.colorScheme === 'dark') {
+        document.body.style.background = 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)';
+        const card = document.querySelector('.card');
+        if (card) {
+          card.style.background = '#1f2937';
+          card.style.color = '#f3f4f6';
+        }
+      }
+    }
+
     function generate() {
       const emoji = document.getElementById("emoji").value.trim();
       const count = parseInt(document.getElementById("count").value);
@@ -198,12 +328,12 @@
       let result = "";
 
       if (!emoji) {
-        alert("لطفاً یک متن یا ایموجی وارد کن!");
+        showAlert("لطفاً یک متن یا ایموجی وارد کن!");
         return;
       }
 
       if (isNaN(count) || count < 1) {
-        alert("لطفاً یک عدد معتبر برای تعداد تکرار وارد کن!");
+        showAlert("لطفاً یک عدد معتبر برای تعداد تکرار وارد کن!");
         return;
       }
 
@@ -214,6 +344,80 @@
       result = result.slice(0, -1);
       document.getElementById("output").value = result;
     }
+
+    function copyResult() {
+      const output = document.getElementById("output");
+      if (!output.value) {
+        showAlert("اول زنجیره رو بساز!");
+        return;
+      }
+
+      // استفاده از Clipboard API
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(output.value).then(() => {
+          showAlert("✅ نتیجه کپی شد!");
+        }).catch(() => {
+          fallbackCopy(output);
+        });
+      } else {
+        fallbackCopy(output);
+      }
+    }
+
+    function fallbackCopy(element) {
+      element.select();
+      element.setSelectionRange(0, 99999);
+      try {
+        document.execCommand('copy');
+        showAlert("✅ نتیجه کپی شد!");
+      } catch (e) {
+        showAlert("❌ خطا در کپی. لطفاً دستی کپی کنید.");
+      }
+    }
+
+    function shareToEitaa() {
+      const output = document.getElementById("output");
+      if (!output.value) {
+        showAlert("اول زنجیره رو بساز!");
+        return;
+      }
+
+      // اگر در محیط ایتا هستیم، از قابلیت اشتراک‌گذاری استفاده کنیم
+      if (eitaaWebApp && eitaaWebApp.shareMessage) {
+        eitaaWebApp.shareMessage(output.value);
+      } else if (navigator.share) {
+        // استفاده از Web Share API
+        navigator.share({
+          text: output.value,
+          title: 'زنجیره ایموجی'
+        }).catch(() => {
+          // اگر کاربر لغو کرد یا خطا داد
+        });
+      } else {
+        // در غیر این صورت، کپی می‌کنیم
+        copyResult();
+        showAlert("متن کپی شد! می‌تونی توی ایتا پیست کنی.");
+      }
+    }
+
+    function showAlert(message) {
+      // استفاده از alert ایتا در صورت وجود
+      if (eitaaWebApp && eitaaWebApp.showAlert) {
+        eitaaWebApp.showAlert(message);
+      } else {
+        alert(message);
+      }
+    }
+
+    // راه‌اندازی اولیه
+    document.addEventListener('DOMContentLoaded', initEitaa);
+
+    // همچنین در صورت بارگذاری دیرهنگام SDK
+    window.addEventListener('load', () => {
+      if (!eitaaWebApp) {
+        initEitaa();
+      }
+    });
   </script>
 </body>
 </html>
